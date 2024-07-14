@@ -1,0 +1,30 @@
+services:
+  leetty-gateway:
+    container_name: ${LEETTY_GATEWAY_CONTAINER_NAME}
+    image: leetty-gateway:${LEETTY_GATEWAY_VERSION}
+    environment:
+      LEETTY_GATEWAY_APP_PROFILE: ${LEETTY_GATEWAY_APP_PROFILE}
+      LEETTY_GATEWAY_LOGGER_LEVEL: ${LEETTY_GATEWAY_LOGGER_LEVEL}
+      LEETTY_GATEWAY_CONFIG_PATH: /configs/config.yml
+      LEETTY_GATEWAY_PORT: ${LEETTY_GATEWAY_PORT}
+    volumes:
+      - ${LEETTY_GATEWAY_CONFIG_PATH}:/configs/config.yml
+    ports:
+      - ${LEETTY_GATEWAY_PORT}:${LEETTY_GATEWAY_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f -s localhost:${LEETTY_GATEWAY_PORT}/health | grep \\." ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - monitoring_network
+      - kafka_network
+    restart: always
+
+networks:
+  monitoring_network:
+    external: true
+    name: ${MONITORING_NETWORK_NAME}
+  kafka_network:
+    external: true
+    name: ${KAFKA_NETWORK_NAME}
