@@ -13,9 +13,9 @@ import (
 
 func PrepareRouter(config *config.Config, router *chi.Mux, writer *kafka.Writer) {
 	addMiddlewares(router)
-	router.Route("/webhook", func(r chi.Router) {
+	router.Route("/", func(r chi.Router) {
 		for _, botMapping := range config.Mapping {
-			logger.Logger.Info("add endpoint: /webhook/" + botMapping.Endpoint)
+			logger.Logger.Info("add endpoint: /" + botMapping.Endpoint)
 			r.Post("/"+botMapping.Endpoint, func(w http.ResponseWriter, r *http.Request) {
 				body := r.Body
 				bodyBytes, _ := io.ReadAll(body)

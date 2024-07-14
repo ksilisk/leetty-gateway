@@ -1,0 +1,23 @@
+# config path
+LEETTY_GATEWAY_CONFIG_PATH=
+
+# log level (INFO, ERROR, DEBUG, WARN)
+LEETTY_GATEWAY_LOGGER_LEVEL=
+
+# application profile
+LEETTY_GATEWAY_APP_PROFILE=
+
+# app port
+LEETTY_GATEWAY_PORT=
+
+# image version
+LEETTY_GATEWAY_VERSION=
+
+# container name
+LEETTY_GATEWAY_CONTAINER_NAME=
+
+# monitoring network name
+MONITORING_NETWORK_NAME=
+
+# kafka network name
+KAFKA_NETWORK_NAME=

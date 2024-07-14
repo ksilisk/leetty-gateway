@@ -3,6 +3,9 @@
 #
 # Another ignored stuff
 .idea
+leetty-gateway
+.config
+configs/*
 
 # Binaries for programs and plugins
 *.exe

@@ -1,0 +1,22 @@
+name: Deploy Leetty-Gateway Project
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  prepare-env:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Build image
+        run: make image
+  run_app:
+    needs: [prepare-env]
+    runs-on: self-hosted
+    steps:
+      - name: Create Leetty version file
+        run: echo "LEETTY_GATEWAY_VERSION=${GITHUB_REF:11}" > .leetty_gateway_version_env
+      - name: Run container
+        run: docker compose -p leetty-gateway --env-file=${DOCKER_ENV_FILE} --env-file=.leetty_gateway_version_env up -d --force-recreate

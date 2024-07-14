@@ -8,6 +8,7 @@ import (
 )
 
 const pathEnvVariable = "LEETTY_GATEWAY_CONFIG_PATH"
+const applicationProfileEnvVariable = "LEETTY_GATEWAY_APP_PROFILE"
 
 type commandLineArgs struct {
 	profile string
@@ -28,12 +29,13 @@ type Config struct {
 func ParseConfig() (conf *Config, error error) {
 	var args = parseArgs()
 	logger.Logger.Info("parsing configuration file")
-	var data, err = os.ReadFile(getConfigPath(args.profile))
+	var data, err = os.ReadFile(getConfigPath(getProfile(args)))
 	if err != nil {
 		return nil, err
 	}
 	var config = Config{}
-	err = yaml.Unmarshal(data, &config)
+	var expandedData = os.ExpandEnv(string(data))
+	err = yaml.Unmarshal([]byte(expandedData), &config)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +51,15 @@ func getConfigPath(profile string) string {
 	return path
 }
 
+func getProfile(args *commandLineArgs) string {
+	var profile, present = os.LookupEnv(applicationProfileEnvVariable)
+	if !present {
+		profile = args.profile
+	}
+	logger.Logger.Info("Using Profile: '" + profile + "'")
+	return profile
+}
+
 func parseArgs() *commandLineArgs {
 	var profile = flag.String("profile", "dev", "the environment to use")
 	var help = flag.Bool("help", false, "display this help and exit")
@@ -57,6 +68,5 @@ func parseArgs() *commandLineArgs {
 		flag.Usage()
 		os.Exit(0)
 	}
-	logger.Logger.Info("Using Profile: '" + *profile + "'")
 	return &commandLineArgs{*profile}
 }
