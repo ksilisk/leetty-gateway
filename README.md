@@ -1,2 +1,2 @@
-# leetty_gateway
+# leetty-gateway
 API-Gateway for webhooks

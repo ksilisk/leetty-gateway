@@ -1,4 +1,4 @@
-include leetty-gateway.env
+include leetty-gateway.make.env
 
 start: compile
 	./bin/leetty-gateway

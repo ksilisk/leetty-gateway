@@ -6,6 +6,7 @@
 leetty-gateway
 .config
 configs/config_dev.yml
+configs/config_compose.yml
 
 # Binaries for programs and plugins
 *.exe
