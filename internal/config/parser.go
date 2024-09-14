@@ -9,6 +9,7 @@ import (
 
 const pathEnvVariable = "LEETTY_GATEWAY_CONFIG_PATH"
 const applicationProfileEnvVariable = "LEETTY_GATEWAY_APP_PROFILE"
+const defaultAppQueueSizeConfig = 100
 
 type commandLineArgs struct {
 	profile string
@@ -24,6 +25,12 @@ type Config struct {
 		KafkaTopic string `yaml:"kafka-topic"`
 		Partition  int    `yaml:"partition"`
 	} `yaml:"mappings"`
+	App struct {
+		QueueSize int `yaml:"queue-size"`
+	} `yaml:"app"`
+	Logger struct {
+		KafkaWriter string `yaml:"kafka-writer"`
+	} `yaml:"logger"`
 }
 
 func ParseConfig() (conf *Config, error error) {
@@ -39,7 +46,14 @@ func ParseConfig() (conf *Config, error error) {
 	if err != nil {
 		return nil, err
 	}
+	initConfig(&config)
 	return &config, nil
+}
+
+func initConfig(conf *Config) {
+	if conf.App.QueueSize <= 0 {
+		conf.App.QueueSize = defaultAppQueueSizeConfig
+	}
 }
 
 func getConfigPath(profile string) string {
@@ -47,7 +61,7 @@ func getConfigPath(profile string) string {
 	if !present {
 		return "configs/config_" + profile + ".yml"
 	}
-	logger.Logger.Info("Found " + path + " environment variable")
+	logger.Logger.Info("Found " + pathEnvVariable + " environment variable")
 	return path
 }
 

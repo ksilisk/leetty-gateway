@@ -4,30 +4,24 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v2"
-	"github.com/segmentio/kafka-go"
 	"io"
 	"leetty-gateway/internal/config"
+	"leetty-gateway/internal/kafka"
 	"leetty-gateway/internal/logger"
 	"net/http"
 )
 
-func PrepareRouter(config *config.Config, router *chi.Mux, writer *kafka.Writer) {
+func PrepareRouter(config *config.Config, router *chi.Mux, dataPipe chan<- *kafka.UpdateRequest) {
 	addMiddlewares(router)
 	router.Route("/", func(r chi.Router) {
 		for _, botMapping := range config.Mapping {
 			logger.Logger.Info("add endpoint: /" + botMapping.Endpoint)
 			r.Post("/"+botMapping.Endpoint, func(w http.ResponseWriter, r *http.Request) {
-				body := r.Body
-				bodyBytes, _ := io.ReadAll(body)
-				kafkaMessage := kafka.Message{
-					Topic:     botMapping.KafkaTopic,
-					Partition: botMapping.Partition,
-					Value:     bodyBytes,
-				}
-				err := writer.WriteMessages(r.Context(), kafkaMessage)
-				if err != nil {
-					logger.Logger.Error("error while sending message", kafkaMessage)
-					return
+				body, _ := io.ReadAll(r.Body)
+				dataPipe <- &kafka.UpdateRequest{
+					MessageBody: body,
+					Topic:       botMapping.KafkaTopic,
+					Partition:   botMapping.Partition,
 				}
 				w.WriteHeader(http.StatusOK)
 			})

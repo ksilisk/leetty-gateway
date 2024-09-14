@@ -13,27 +13,32 @@ import (
 
 type App struct {
 	Config      *config.Config
-	Router      *chi.Mux
 	KafkaWriter *kafka.Writer
+	router      *chi.Mux
+	dataChan    chan http.Request
 }
 
 func NewApp(config *config.Config) *App {
 	return &App{
 		Config:      config,
-		Router:      chi.NewRouter(),
+		router:      chi.NewRouter(),
 		KafkaWriter: kafka2.CreateKafkaWriter(config)}
 }
 
 func (a *App) Start() {
+	dataChan := make(chan *kafka2.UpdateRequest, a.Config.App.QueueSize)
 	var port = strconv.Itoa(a.Config.Server.Port)
-	logger.Logger.Info("starting server on port: " + port)
+	logger.Logger.Info("starting server on port: " + port + ", queueSize: " + strconv.Itoa(a.Config.App.QueueSize))
 	kafka2.CreateKafkaTopics(a.Config)
-	listener.PrepareRouter(a.Config, a.Router, a.KafkaWriter)
-	_ = http.ListenAndServe(":"+port, a.Router)
+	listener.PrepareRouter(a.Config, a.router, dataChan)
+	go kafka2.UpdatesSending(dataChan, a.KafkaWriter)
+	_ = http.ListenAndServe(":"+port, a.router)
 }
 
 func (a *App) Close() {
 	logger.Logger.Info("shutting down server")
+	logger.Logger.Info("close kafka-sender channel")
+	close(a.dataChan)
 	logger.Logger.Debug("close kafka writer resource")
 	err := a.KafkaWriter.Close()
 	if err != nil {

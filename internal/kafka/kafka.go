@@ -4,12 +4,18 @@ import (
 	"github.com/segmentio/kafka-go"
 	"leetty-gateway/internal/config"
 	"leetty-gateway/internal/logger"
+	"strings"
 )
+
+const kafkaWriterBatchSize = 1
 
 func CreateKafkaWriter(config *config.Config) *kafka.Writer {
 	return &kafka.Writer{
 		Addr:                   kafka.TCP(config.KafkaBrokers...),
 		AllowAutoTopicCreation: true,
+		Logger:                 getKafkaLogger(config.Logger.KafkaWriter),
+		RequiredAcks:           kafka.RequireOne,
+		BatchSize:              kafkaWriterBatchSize,
 	}
 }
 
@@ -34,5 +40,21 @@ func CreateKafkaTopics(config *config.Config) {
 			logger.Logger.Error("error while creating kafka topic", err)
 			panic(err)
 		}
+	}
+}
+
+func getKafkaLogger(logLevel string) kafka.LoggerFunc {
+	groupedKafkaLogger := logger.Logger.WithGroup("kafka-logger")
+	switch strings.ToUpper(logLevel) {
+	case logger.LogLevelDebug:
+		return groupedKafkaLogger.Debug
+	case logger.LogLevelInfo:
+		return groupedKafkaLogger.Info
+	case logger.LogLevelWarn:
+		return groupedKafkaLogger.Warn
+	case logger.LogLevelError:
+		return groupedKafkaLogger.Error
+	default:
+		return groupedKafkaLogger.Debug
 	}
 }
