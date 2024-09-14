@@ -1,0 +1,23 @@
+#server:
+#  port: 9091 # port on which app will run (required - true)
+
+#kafka-brokers: # kafka-brokers for app (required - true)
+#  - "localhost:9092"
+
+#mappings:
+#  - endpoint: "endpoint1" # rest endpoint which app listen
+#    kafka-topic: "topic1" # kafka topic for rest endpoint which will be sent update
+#  - endpoint: "test"
+#    kafka-topic: "test"
+#  - endpoint: "test1"
+#    kafka-topic: "test1"
+
+#app:
+#  queue-size: 100 # size of internal queue for updates (default - 100, required - false)
+
+#logger:
+#  kafka-writer: DEBUG # log level for kafka-writer (default - DEBUG, required - false)
+
+# all configs also can be configured by env-vars, like:
+#logger:
+#  kafka-writer: ${KAFKA_WRITER_LOG_LEVEL}

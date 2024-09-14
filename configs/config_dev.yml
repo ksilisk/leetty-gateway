@@ -1,9 +1,0 @@
-server:
-  port: 3334
-kafka-brokers:
-  - "localhost:9092"
-mappings:
-  - endpoint: "test"
-    kafka-topic: "test"
-  - endpoint: "test2"
-    kafka-topic: "hello"

@@ -5,7 +5,7 @@
 .idea
 leetty-gateway
 .config
-configs/*
+configs/config_dev.yml
 
 # Binaries for programs and plugins
 *.exe
